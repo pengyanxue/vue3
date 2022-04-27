@@ -1,0 +1,29 @@
+$--font-path: 'node_modules/element-plus/lib/theme-chalk/fonts';
+
+.body-theme-blue {
+  $--color-primary: #1A7AE8;
+
+  @import './theme-blue.scss';
+  @import "node_modules/element-plus/theme-chalk/src/index";
+  // 导入公共样式配置
+  @import './theme-common-config.scss';
+}
+
+.body-theme-green {
+  $--color-primary: #42b983;
+
+  @import './theme-green.scss';
+  @import "node_modules/element-plus/theme-chalk/src/index";
+  // 导入公共样式配置
+  @import './theme-common-config.scss';
+}
+
+
+.body-theme-purple {
+  $--color-primary: #A67CEF;
+
+  @import './theme-purple.scss';
+  @import "node_modules/element-plus/theme-chalk/src/index";
+  // 导入公共样式配置
+  @import './theme-common-config.scss';
+}

@@ -1,0 +1,152 @@
+
+$title-font-color: #606266;
+$success-color: #67c23a;
+$danger-color: #F56C6C;
+$error-color: #EB1212;
+$normal-color: #606266;
+$warning-color: #E6A23C;
+$main-layout-bg: #fff;
+
+@mixin border($name, $direction, $type: solid, $color: #606266) {
+    .border-#{$name} {
+        @if $direction != '' {
+            border-#{$direction}: 1px $type $color;
+        } @else {
+            border: 1px $type $color;
+        }
+    }
+}
+
+// text-color基础类
+.normal {
+    color: $normal-color!important;
+}
+
+.success {
+    color: $success-color!important;
+}
+
+.error {
+    color: $error-color!important;
+}
+
+.danger {
+    color: $danger-color!important;
+}
+
+.warning {
+    color: $warning-color!important;
+}
+
+
+// 基础布局类
+.base-box {
+    padding: 20px 30px;
+    box-sizing: border-box;
+}
+
+.base-bg {
+    background-color: $main-layout-bg;
+}
+
+.success-bg {
+    background-color: $success-color!important;
+}
+
+.error-bg {
+    background-color: $error-color!important;
+}
+
+// 基础边距类
+.padding-20 {
+    padding: 20px;
+}
+
+.pt-20 {
+    padding-top: 20px;
+}
+
+.pb-20 {
+    padding-bottom: 20px;
+}
+
+.pr-20 {
+    padding-right: 20px;
+}
+
+.pl-20 {
+    padding-left: 20px;
+}
+
+.pl-10 {
+    padding-left: 10px;
+}
+
+.pr-10 {
+    padding-right: 10px;
+}
+
+.margin-20 {
+    margin: 20px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.ml-20 {
+    margin-left: 20px;
+}
+
+.mr-20 {
+    margin-right: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mr-15 {
+    margin-right: 15px !important;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+// 标题类
+.base-title {
+    margin-bottom: 20px;
+    color: $title-font-color;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 32px;
+}
+
+// second-title
+.second-title {
+    margin-top: 30px;
+    color: $title-font-color;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 28px;
+}
+
+// 边框类
+@include border(b, bottom, solid, #DEDDDD);
+@include border(t, top, solid, #DEDDDD);
+
+.pagination-span{
+    font-size: 13px; 
+    font-weight: normal;
+    color: #606266;
+}
+
+// base-loading 居中
+.page-loading-wrapper {
+    position: absolute!important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}

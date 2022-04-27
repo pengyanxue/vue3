@@ -1,107 +1,205 @@
+<!--
+ * @Description: app 布局入口
+ * @Date: 2020-12-17 15:32:33
+ * @LastEditors: pengyanxue
+ * @LastEditTime: 2022-04-27 15:48:50
+-->
 <template>
-  <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <sidebar class="sidebar-container" />
-    <div :class="{hasTagsView:needTagsView}" class="main-container">
-      <!-- 回到顶部 -->
-      <el-backtop target=".main-container" :bottom="50" :right="40" :visibility-height="100">
-        <i class="el-icon-caret-top" />
-      </el-backtop>
-      <div :class="{'fixed-header':fixedHeader}">
-        <navbar />
-        <tags-view v-if="needTagsView" />
+  <div
+    :class="classObj"
+    class="app-wrapper"
+  >
+    <div
+      v-if="classObj.mobile && sidebar.opened"
+      class="drawer-bg"
+      @click="handleClickOutside"
+    />
+    <Sidebar class="sidebar-container" />
+    <div
+      :class="{hasTagsView: showTagsView}"
+      class="main-container"
+    >
+      <div :class="{'fixed-header': fixedHeader}">
+        <Navbar />
+        <TagsView v-if="showTagsView" />
       </div>
-      <app-main />
-
-      <!-- 版权信息 -->
-      <Footer />
+      <AppMain />
+      <RightPanel v-if="showSettings">
+        <Settings />
+      </RightPanel>
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain, Settings, TagsView, Footer } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
-import { mapState } from 'vuex'
-
-export default {
+// import { DeviceType } from '@/store/modules/app/state'
+import { computed, defineComponent, onBeforeMount, onBeforeUnmount, onMounted, reactive, toRefs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+// import { AppActionTypes } from '@/store/modules/app/action-types'
+import { AppMain, Navbar, TagsView, Sidebar/* , Settings */ } from './components'
+// import RightPanel from '@/components/right_panel/Index.vue'
+import resize from './resize'
+export default defineComponent({
   name: 'Layout',
   components: {
-    Navbar,
-    Sidebar,
     AppMain,
-    Settings,
-    TagsView,
-    Footer
+    Navbar,
+    // RightPanel,
+    // Settings,
+    Sidebar,
+    TagsView
   },
-  mixins: [ResizeMixin],
-  computed: {
-    ...mapState({
-      sidebar: state => state.app.sidebar,
-      device: state => state.app.device,
-      showSettings: state => state.settings.showSettings,
-      needTagsView: state => state.settings.tagsView,
-      fixedHeader: state => state.settings.fixedHeader
-    }),
-    classObj() {
-      return {
-        hideSidebar: !this.sidebar.opened,
-        openSidebar: this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
+  setup() {
+    const { t } = useI18n()
+    const store = useStore()
+    const { sidebar, device, addEventListenerOnResize, resizeMounted, removeEventListenerResize, watchRouter } = resize()
+    const state = reactive({
+      handleClickOutside: () => {
+        // store.dispatch(AppActionTypes.ACTION_CLOSE_SIDEBAR, false)
       }
-    }
-  },
-  methods: {
-    handleClickOutside() {
-      this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    })
+
+    const classObj = computed(() => {
+      return {
+        hideSidebar: !sidebar.value.opened,
+        openSidebar: sidebar.value.opened,
+        withoutAnimation: sidebar.value.withoutAnimation,
+        mobile: device.value === 'Mobile'
+      }
+    })
+
+    const showSettings = computed(() => {
+      return store.state.settings.showSettings
+    })
+    const showTagsView = computed(() => {
+      return store.state.settings.showTagsView
+    })
+    const fixedHeader = computed(() => {
+      return store.state.settings.fixedHeader
+    })
+
+    watchRouter()
+    onBeforeMount(() => {
+      addEventListenerOnResize()
+    })
+
+    onMounted(() => {
+      resizeMounted()
+    })
+
+    onBeforeUnmount(() => {
+      removeEventListenerResize()
+    })
+    return {
+      t,
+      classObj,
+      sidebar,
+      showSettings,
+      showTagsView,
+      fixedHeader,
+      ...toRefs(state)
     }
   }
-}
+})
 </script>
 
 <style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
+.app-wrapper {
+  // @include clearfix;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
 
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar{
-      position: fixed;
-      top: 0;
-    }
+.drawer-bg {
+  background: #000;
+  opacity: 0.3;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  position: absolute;
+  z-index: 999;
+}
+
+.main-container {
+  min-height: 100%;
+  transition: margin-left .28s;
+  // margin-left: $sideBarWidth;
+  position: relative;
+}
+
+.sidebar-container {
+  transition: width 0.28s;
+  // width: $sideBarWidth !important;
+  height: 100%;
+  position: fixed;
+  font-size: 0px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
+  overflow: hidden;
+  background-color: #ffffff !important;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9;
+  // width: calc(100% - #{$sideBarWidth});
+  transition: width 0.28s;
+}
+
+.hideSidebar {
+  .main-container {
+    margin-left: 54px;
   }
-  .drawer-bg {
-    background: #000;
-    opacity: 0.3;
-    width: 100%;
-    top: 0;
-    height: 100%;
-    position: absolute;
-    z-index: 999;
+
+  .sidebar-container {
+    width: 54px !important;
   }
 
   .fixed-header {
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 1999;
-    width: calc(100% - #{$sideBarWidth});
-    transition: width 0.28s;
-  }
-
-  .el-popup-parent--hidden .fixed-header {
-    padding-right: 0;
-  }
-
-  .hideSidebar .fixed-header {
     width: calc(100% - 54px)
   }
+}
 
-  .mobile .fixed-header {
+/* for mobile response 适配移动端 */
+.mobile {
+  .main-container {
+    margin-left: 0px;
+  }
+
+  .sidebar-container {
+    transition: transform .28s;
+    // width: $sideBarWidth !important;
+  }
+
+  &.openSidebar {
+    position: fixed;
+    top: 0;
+  }
+
+  &.hideSidebar {
+    .sidebar-container {
+      pointer-events: none;
+      transition-duration: 0.3s;
+      // transform: translate3d(-$sideBarWidth, 0, 0);
+    }
+  }
+
+  .fixed-header {
     width: 100%;
   }
+}
+
+.withoutAnimation {
+  .main-container,
+  .sidebar-container {
+    transition: none;
+  }
+}
+
 </style>
